@@ -7,8 +7,8 @@ export default function Router() {
     return (
         <Routes>
             <Route>
-                <Route path="/" element={<Dashboard/>}/>
-                <Route path="DetailScreen/:adId" element={<DetailScreen/>}/>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="DetailScreen/:adId" element={<DetailScreen />} />
             </Route>
         </Routes>
     )
