@@ -1,10 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
 import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
 } from "firebase/auth";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
+
 
 
 const firebaseConfig = {
@@ -18,9 +21,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 const db = getFirestore(app);
-
+const storage = getStorage();
 
 export const register = async (userInfo) => {
     try {
@@ -47,8 +50,6 @@ export const LogIn = async (userInfo) => {
     try {
         const { email, password } = userInfo;
         return await signInWithEmailAndPassword(auth, email, password).then(res => {
-            console.log("🚀 ~ returnawaitsignInWithEmailAndPassword ~ res:", res);
-
 
             alert('Logged In Successfully');
             return res;
@@ -61,21 +62,43 @@ export const LogIn = async (userInfo) => {
 }
 
 export const PostData = async (userInfo) => {
-    console.log("🚀 ~ PostData ~ userInfo:", userInfo);
     try {
-        const { productName, description, quantity, price } = userInfo;
-        await addDoc(collection(db, 'users'), {
+        const { productName, description, image, price } = userInfo;
+
+        const storageRef = ref(storage, `ad/${image}`);
+
+        // 'file' comes from the Blob or File API
+        await uploadBytes(storageRef, image);
+        alert('image uploaded successfully!');
+
+        const url = await getDownloadURL(storageRef);
+        
+        await addDoc(collection(db, 'ads'), {
             productName,
             description,
-            quantity,
+            imageUrl: url,
             price,
         });
 
-        alert('Successfully Post Ad');
+        alert('Ad posted succesfully!');
         return true;
+
     } catch (e) {
         alert(e.message);
         return e;
-    };
+    }
+}
 
+
+export async function getAds() {
+    const querySnapshot = await getDocs(collection(db, 'ads'));
+    const ads = [];
+    querySnapshot.forEach((doc) => {
+        const ad = doc.data();
+        ad.id = doc.id;
+
+        ads.push(ad)
+    });
+
+    return ads;
 }

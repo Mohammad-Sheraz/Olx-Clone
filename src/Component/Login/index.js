@@ -11,12 +11,10 @@ function Login() {
 
     const loginPress = async () => {
         await LogIn({ email, password }).then((res) => {
-            console.log("🚀 ~ awaitLogIn ~ res:", res)
             if (res && res.user) {
                 navigate('/');
             }
         }).catch(err => {
-            console.log("🚀 ~ awaitLogIn ~ err:", err)
         })
     }
 

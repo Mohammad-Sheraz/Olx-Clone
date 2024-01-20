@@ -5,10 +5,27 @@ import building from "../../Assets/building.svg";
 import search from "../../Assets/search.svg";
 import sellicon from "../../Assets/sellicon.svg";
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../Config/Firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 
 
 function Navbar() {
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user);
+
+            } else {
+                setUser(null);
+            }
+        });
+    }, [])
+
     return (
         <div>
             <div style={{ height: '8rem', }}></div>
@@ -29,7 +46,12 @@ function Navbar() {
 
                     <input style={{ width: '26rem', height: '2.3rem', marginLeft: 18, marginTop: 6, borderTopLeftRadius: 5, borderBottomLeftRadius: 5, border: '2px solid black' }} placeholder="Find Cars, Mobile Phones and more..." ></input>
                     <img style={{ background: 'black', width: 40, height: 42.5, marginTop: 6, borderTopRightRadius: 5, borderBottomRightRadius: 5 }} src={search} ></img>
-                    <button onClick={() => navigate('/Login')} style={{marginLeft: '1rem', border: 'none', fontWeight: 'bold', fontSize: 20, height: 0, marginTop: 14, textDecoration: 'underline'}}>Login</button>
+
+                    { user ?
+                    <h4>{user.email}</h4>
+                    :
+                    <button onClick={() => navigate('/Login')} style={{ marginLeft: '1rem', border: 'none', fontWeight: 'bold', fontSize: 20, height: 0, marginTop: 14, textDecoration: 'underline' }}>Login</button>
+                    }
 
                     <img onClick={() => navigate('/post')} style={{ marginLeft: 15, marginTop: -33 }} src={sellicon} ></img>
 
@@ -47,7 +69,7 @@ function Navbar() {
                 <p style={{ margin: "0 8px" }}>Tablets</p>
                 <p style={{ margin: "0 8px" }}>Land&Plots</p>
             </div>
-            <img style={{width: '95%'}} src='https://images.olx.com.pk/thumbnails/295176473-800x600.webp' alt='ad Image'/>
+            <img style={{ width: '95%' }} src='https://images.olx.com.pk/thumbnails/295176473-800x600.webp' alt='ad Image' />
         </div>
     )
 }

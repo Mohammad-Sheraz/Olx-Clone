@@ -3,7 +3,7 @@ import heart from "../../Assets/heart.svg";
 
 function Cards(props) {
 
-    const { price, title, description, images, id } = props;
+    const { price, title, description, imageUrl, id } = props.item;
     const navigate = useNavigate();
 
     const handleCardPress = (e) => {
@@ -13,7 +13,10 @@ function Cards(props) {
     return (
         <div style={{ display: "inline-flex" }}>
             <div onClick={() => handleCardPress(props)} style={{ width: '17rem', margin: 6, borderRadius: 10, border: '2px solid grey', height: 420 }}>
-                <img style={{ width: '17rem', height: 200, borderTopLeftRadius: 7, borderTopRightRadius: 7, borderBottom: '1px solid grey' }} src={images[0]} className="card-img-top" alt="alt" />
+
+                {imageUrl ?
+                <img style={{ width: '17rem', height: 200, borderTopLeftRadius: 7, borderTopRightRadius: 7, borderBottom: '1px solid grey' }} src={imageUrl} className="card-img-top" alt="alt" />
+                : null }
                 <div style={{ width: '15rem', textAlign: "left", padding: 10, marginTop: -30 }}>
                     <h5 style={{ textAlign: "right", display: "flex" }}> ${price} <img style={{ marginLeft: '11rem' }} src={heart} alt="heart img" /> </h5>
                     <h5>{title}</h5>

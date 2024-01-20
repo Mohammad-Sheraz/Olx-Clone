@@ -6,8 +6,6 @@ import image from "../../Assets/image.jpg";
 function DetailScreen() {
 
     const { state } = useLocation();
-    console.log("🚀 ~ DetailScreen ~ state:", state);
-
 
     return (
         <div>

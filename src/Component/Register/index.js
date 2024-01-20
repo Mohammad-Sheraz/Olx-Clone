@@ -15,7 +15,6 @@ function Register() {
             await register({ fullname, age, email, password });
             navigate('/Login')
         } catch (error) {
-            console.log("🚀 ~ register ~ error:", error)
         }
     }
 
