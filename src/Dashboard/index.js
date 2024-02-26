@@ -39,10 +39,15 @@ function Dashboard() {
                 return <Cards price={price} title={title} description={description} images={images} id={id} />
             })} */}
 
-            {products.map(item => {
+            {/* {products.map(item => {
                 return <Cards item={item} />
             })
-            }
+            } */}
+
+            {products.map(function (item) {
+                return <Cards item={item} />
+            })}
+
             <br />
             <ScrollTopButton />
             <Footer />

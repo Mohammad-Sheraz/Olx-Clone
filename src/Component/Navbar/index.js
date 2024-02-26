@@ -5,7 +5,7 @@ import building from "../../Assets/building.svg";
 import search from "../../Assets/search.svg";
 import sellicon from "../../Assets/sellicon.svg";
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../../Config/Firebase';
+import { LogoutFirebase, auth, getpfps } from '../../Config/Firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 function Navbar() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+    const [pfpImg, setPfpImg] = useState();
 
 
     useEffect(() => {
@@ -26,9 +27,26 @@ function Navbar() {
         });
     }, [])
 
+    useEffect(() => {
+        getpicture()
+
+    }, [pfpImg])
+
+
+    const getpicture = async () => {
+        const pfpicture = await getpfps()
+        setPfpImg(pfpicture)
+    }
+
+
+    const handleLogoutPress = () => {
+        LogoutFirebase();
+        setPfpImg(null)
+    }
+
     return (
         <div>
-            <div style={{ height: '8rem', }}></div>
+            <div style={{ height: '7rem', }}></div>
 
             <nav style={{ backgroundColor: "rgb(241, 239, 239)", position: 'fixed', top: 0, width: '100%', height: '7.5rem' }}>
                 <div style={{ display: "flex", paddingLeft: '5rem' }}>
@@ -47,13 +65,29 @@ function Navbar() {
                     <input style={{ width: '26rem', height: '2.3rem', marginLeft: 18, marginTop: 6, borderTopLeftRadius: 5, borderBottomLeftRadius: 5, border: '2px solid black' }} placeholder="Find Cars, Mobile Phones and more..." ></input>
                     <img style={{ background: 'black', width: 40, height: 42.5, marginTop: 6, borderTopRightRadius: 5, borderBottomRightRadius: 5 }} src={search} ></img>
 
-                    { user ?
-                    <h4>{user.email}</h4>
-                    :
-                    <button onClick={() => navigate('/Login')} style={{ marginLeft: '1rem', border: 'none', fontWeight: 'bold', fontSize: 20, height: 0, marginTop: 14, textDecoration: 'underline' }}>Login</button>
+                    {user ?
+                        <h4>{user.email}</h4>
+                        :
+                        <button onClick={() => navigate('/Login')} style={{ marginLeft: '1rem', border: 'none', fontWeight: 'bold', fontSize: 20, height: 0, marginTop: 14, textDecoration: 'underline' }}>Login</button>
                     }
 
-                    <img onClick={() => navigate('/post')} style={{ marginLeft: 15, marginTop: -33 }} src={sellicon} ></img>
+                    {user ?
+                        <button onClick={handleLogoutPress} style={{ marginLeft: '1rem', border: 'none', fontWeight: 'bold', fontSize: 20, height: 0, marginTop: 14, textDecoration: 'underline' }}>Logout</button>
+                        : null}
+
+                    {/* {pfpImg ? <span><img className='profile-img' src={pfpImg[0].pfpURl} /></span>
+                        : <span class="upload-btn-wrapper">
+                            <button class="upload-img-btn" onClick={() => navigate('/editProfile')} >Upload Profile</button>
+
+                        </span>
+                    } */}
+
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginRight: 10, marginTop: 10 }}>
+                        <div style={{ position: "relative" }}>
+                            <img src={sellicon} style={{ width: '5.5rem' }}></img>
+                            <span onClick={() => navigate('/post')} style={{ position: "absolute", top: "45%", left: "48%", transform: "translate(-50%, -50%)", color: "black", fontSize: 15, fontWeight: 'bold' }}>+SELL</span>
+                        </div>
+                    </div>
 
                 </div>
 

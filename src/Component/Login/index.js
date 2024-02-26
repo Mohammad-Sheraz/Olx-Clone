@@ -15,6 +15,7 @@ function Login() {
                 navigate('/');
             }
         }).catch(err => {
+            console.log("🚀 ~ awaitLogIn ~ err:", err);
         })
     }
 

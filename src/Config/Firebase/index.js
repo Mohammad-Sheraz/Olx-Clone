@@ -1,14 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, query, where } from "firebase/firestore";
 import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    signOut,
 } from "firebase/auth";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-
-
-
 
 const firebaseConfig = {
     apiKey: "AIzaSyBYesUxRz0jRSbm1I2DPgxsazs8fpiwBNI",
@@ -28,11 +26,12 @@ const storage = getStorage();
 export const register = async (userInfo) => {
     try {
         const { email, password, age, fullname } = userInfo;
-        await createUserWithEmailAndPassword(auth, email, password)
+        const userRes = await createUserWithEmailAndPassword(auth, email, password)
         await addDoc(collection(db, 'users'), {
             fullname,
             age,
             email,
+            UID: userRes?.user?.uid
         });
 
         alert('Successfully Register');
@@ -49,8 +48,12 @@ export const LogIn = async (userInfo) => {
 
     try {
         const { email, password } = userInfo;
-        return await signInWithEmailAndPassword(auth, email, password).then(res => {
-
+        return await signInWithEmailAndPassword(auth, email, password).then(async res => {
+            console.log("🚀 ~ returnawaitsignInWithEmailAndPassword ~ res:", res)
+            const usersCollection = collection(db, 'users');
+            const userQuery = query(usersCollection, where('UID', '==', 'rXUXv4wMi7Yc7gyPPYc5CCFrfxm1'));
+            const userSnapshot = await getDocs(userQuery);
+            console.log("🚀 ~ returnawaitsignInWithEmailAndPassword ~ userQuery:", userSnapshot)
             alert('Logged In Successfully');
             return res;
         })
@@ -61,27 +64,50 @@ export const LogIn = async (userInfo) => {
 
 }
 
-export const PostData = async (userInfo) => {
+export const LogoutFirebase = async () => {
     try {
-        const { productName, description, image, price } = userInfo;
+        await signOut(auth)
+        alert('Logged out successfully!');
+    } catch (e) {
+        alert(e.message);
+    }
+}
 
-        const storageRef = ref(storage, `ad/${image}`);
+export const PostData = async (userInfo) => {
+    console.log("🚀 ~ PostData ~ userInfo:", userInfo)
+    try {
+        const { productName, description, images, price } = userInfo;
+
+        const storageRef = ref(storage, `ad/${images[0].name}`);
+        const storageRef2 = ref(storage, `ad/${images[1].name}`);
+        const storageRef3 = ref(storage, `ad/${images[2].name}`);
+
+
 
         // 'file' comes from the Blob or File API
-        await uploadBytes(storageRef, image);
-        alert('image uploaded successfully!');
+        await uploadBytes(storageRef, images[0]);
+        // alert('images uploaded successfully!');
+        await uploadBytes(storageRef2, images[1]);
+
+        await uploadBytes(storageRef3, images[2]);
+
+
 
         const url = await getDownloadURL(storageRef);
-        
+        const url2 = await getDownloadURL(storageRef2);
+        const url3 = await getDownloadURL(storageRef3);
+
+
+
         await addDoc(collection(db, 'ads'), {
             productName,
             description,
-            imageUrl: url,
+            imageUrl: [url, url2, url3],
             price,
         });
 
         alert('Ad posted succesfully!');
-        return true;
+        // return true;
 
     } catch (e) {
         alert(e.message);
@@ -102,3 +128,54 @@ export async function getAds() {
 
     return ads;
 }
+
+
+export async function uploadpfp(pfpimage) {
+    const { pfpImg } = pfpimage
+
+    try {
+
+        const storageRef = ref(storage, `profilepictures / ${pfpImg.name}`);
+        await uploadBytes(storageRef, pfpImg)
+        const pfpURl = await getDownloadURL(storageRef)
+
+        const docRef = await addDoc(collection(db, "userpfps"), {
+            pfpURl,
+
+        });
+    } catch (e) {
+        alert(e.message)
+    }
+
+}
+
+
+export async function getpfps() {
+
+    const querySnapshot = await getDocs(collection(db, "userpfps"));
+    const pfpIMG = []
+    querySnapshot.forEach((doc) => {
+
+
+        pfpIMG.push(doc.data())
+    });
+    return pfpIMG
+
+}
+
+
+export async function getSingleProduct(detailID) {
+
+    const docRef = doc(db, "ads", detailID);
+    const docSnap = await getDoc(docRef);
+    const productData = docSnap.data()
+
+    if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+    } else {
+        console.log("No such document!");
+    }
+    return productData;
+
+}
+
